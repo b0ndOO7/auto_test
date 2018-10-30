@@ -23,13 +23,21 @@ import org.apache.http.util.EntityUtils;
 
 import net.sf.json.JSONObject;
 
-public class HttpClientUtils {
+public class HttpClientUtil {
 
-	public String doGetRequest() throws URISyntaxException, ClientProtocolException, IOException {
+	
+	/**
+	 * Get请求不带head
+	 * @param url
+	 * @return
+	 * @throws URISyntaxException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public static String doGetRequest(String url) throws URISyntaxException, ClientProtocolException, IOException {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		//创建一个uri对象
-		URIBuilder uriBuilder = new URIBuilder("http://www.sogou.com/web");
-		uriBuilder.addParameter("query","花千骨");
+		URIBuilder uriBuilder = new URIBuilder(url);
 		HttpGet get = new HttpGet(uriBuilder.build());
 
 		//执行请求
@@ -41,7 +49,6 @@ public class HttpClientUtils {
 		HttpEntity entity =response.getEntity();
 		String respStr = EntityUtils.toString(entity,"utf-8");
 
-//		System.out.println(respStr);
 		//关闭httpclient
 		response.close();
 		httpClient.close();
@@ -49,13 +56,52 @@ public class HttpClientUtils {
 		return respStr;
 	}
 	
+	/**
+	 * Get请求带head
+	 * @param url
+	 * @param header
+	 * @return
+	 * @throws URISyntaxException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public static String doGetRequest(String url, Map<String, String> header) throws URISyntaxException, ClientProtocolException, IOException {
+		CloseableHttpClient httpClient = HttpClients.createDefault();
+		//创建一个uri对象
+		URIBuilder uriBuilder = new URIBuilder(url);
+		HttpGet get = new HttpGet(uriBuilder.build());
+		for (Map.Entry<String, String> entry : header.entrySet()) {
+			get.addHeader(entry.getKey(),entry.getValue());
+		}
+		//执行请求
+		CloseableHttpResponse response = httpClient.execute(get);
+		//取响应的结果
+		int statusCode = response.getStatusLine().getStatusCode();
+
+		HttpEntity entity =response.getEntity();
+		String respStr = EntityUtils.toString(entity,"utf-8");
+
+		//关闭httpclient
+		response.close();
+		httpClient.close();
+		
+		return respStr;
+	}
 	
-	public String doPostRequst(String url, JSONObject requestData) throws ClientProtocolException, IOException {
+	/**
+	 * Post请求不带head
+	 * @param url
+	 * @param requestData
+	 * @return
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public static String doPostRequst(String url, String requestData) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpClient= HttpClients.createDefault();
 		HttpPost post = new HttpPost(url);
 
 		//包装成一个Entity对象
-		StringEntity entity = new StringEntity(requestData.toString(),"utf-8");
+		StringEntity entity = new StringEntity(requestData,"utf-8");
 
 		//设置请求的内容
 		post.setEntity(entity);
@@ -71,7 +117,16 @@ public class HttpClientUtils {
 		return respStr;
 	}
 	
-	public String doPostRequst(String url, JSONObject requestData, HashMap<String, String> header) throws ClientProtocolException, IOException {
+	/**
+	 * Post请求带head
+	 * @param url
+	 * @param requestData
+	 * @param header
+	 * @return
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public static String doPostRequst(String url, String requestData, Map<String, String> header) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpClient= HttpClients.createDefault();
 		HttpPost post = new HttpPost(url);
 		//Userid: 7f0pRahZRLc 添加消息头
@@ -80,7 +135,7 @@ public class HttpClientUtils {
 		}
 		
 		//包装成一个Entity对象
-		StringEntity entity = new StringEntity(requestData.toString(),"utf-8");
+		StringEntity entity = new StringEntity(requestData,"utf-8");
 		post.setEntity(entity);
 
 		//执行post请求

@@ -1,9 +1,15 @@
 package com.zsdk.autotest.api.testcase;
 
+import static org.testng.Assert.assertTrue;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.ObjectUtils.Null;
+import org.apache.http.client.ClientProtocolException;
 import org.testng.Reporter;
 
 import org.testng.annotations.AfterClass;
@@ -12,13 +18,13 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.Assertion;
 
+import com.zsdk.autotest.common.Common;
 import com.zsdk.autotest.common.ExcelUtils;
+import com.zsdk.autotest.common.HttpClientUtil;
 
-//import com.zsdk.autotest.common.ExcelUtils;
+
 
 public class TestCase {
-
-	private Assertion assertion;
 
 	public Map<String, HashMap> allTestCases;
 	// 测试案例文件路径--excel作为存储
@@ -26,12 +32,11 @@ public class TestCase {
 
 	@BeforeClass
 	public void beforeClass() {
-		try {
-			allTestCases = ExcelUtils.toMapBySheet(testCasePath, "cases_a");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		assertion = new Assertion();
+//		try {
+//			allTestCases = ExcelUtils.toMapBySheet(testCasePath, "cases_a");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@AfterClass
@@ -47,27 +52,73 @@ public class TestCase {
 	 * CaseName	RequestMethod	RequestUrl	RequestData	ExpectResult	CaseDesc
 	 *   登录	GET	           test.zbg.com	{"name":"aaaa"}	TRUE	    desc1
 	 * @return
+	 * @throws IOException 
+	 * @throws ClientProtocolException 
+	 * @throws URISyntaxException 
 	 */
 	@Test(dataProvider = "case_a")
-	public void f1(HashMap<String, String> map){
-		Reporter.log("testNG testcase f1()");
+	public void testZBGApi(HashMap<String, String> map) throws ClientProtocolException, IOException, URISyntaxException{
+		
+		//CaseName	RequestMethod	RequestUrl	RequestHead	RequestData	ExpectResult	CaseDesc
+		Reporter.log("【用例名称】：" + map.get("CaseName") + "===========================================");
+		Reporter.log("【用例参数】：" + map.get("CaseName") + "===========================================");
 		for (Entry<String, String> entry : map.entrySet()) {
+			if (entry.getKey()==null || entry.getKey().isEmpty()) {
+				continue;
+			}
 			Reporter.log(entry.getKey() + ":" + entry.getValue());
 		}
+//		Reporter.log("【用例名称】：" + map.get("CaseName") + "===========================================");
 		
-		assertion.assertTrue(false);
+		String url = map.get("RequestUrl");
+		url = Common.checkAndChangeUrl(url);
+		String method = map.get("RequestMethod");
+		String header = map.get("RequestHead");
+		String requestData = map.get("RequestData");
+		
+		String expect = map.get("ExpectResult");
+		
+		Map<String, String> headMap = new HashMap<>();
+		String respStr = "";
+		if ( "POST".equals(method) ) {
+			if ( header == null || header.isEmpty()) {
+				respStr = HttpClientUtil.doPostRequst(url, requestData);
+			}else {
+				headMap = Common.stringToMap(header, ":", "|");
+				respStr = HttpClientUtil.doPostRequst(url, requestData, headMap);
+			}
+		}else if ("GET".equals(method) ) {
+			if ( header == null || header.isEmpty()) {
+				respStr = HttpClientUtil.doGetRequest(url);
+			}else {
+				headMap = Common.stringToMap(header, ":", "|");
+				respStr = HttpClientUtil.doGetRequest(url, headMap);
+			}
+		} 
+		Reporter.log("【响应结果】：" + map.get("CaseName") + "===========================================");
+		Reporter.log(respStr);
+
+		Reporter.log("【结果校验】：expect:" + expect);
+		if (respStr.indexOf(expect) < 0) {
+			assertTrue(false);
+			Reporter.log("【结果校验】：fail");
+		}else {
+			assertTrue(true);
+			Reporter.log("【结果校验】：pass");
+		}
 	}
 
-	@Test
+	
+//	@Test
 	public void f2() {
 		Reporter.log("testNG testcase f2()");
-		assertion.assertTrue(true);
+		assertTrue(true);
 	}
 
-	@Test
+//	@Test
 	public void f3() {
 		Reporter.log("testNG testcase f3()");
-		assertion.assertTrue(true);
+		assertTrue(true);
 	}
 
 }
