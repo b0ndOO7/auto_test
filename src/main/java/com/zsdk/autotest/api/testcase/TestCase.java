@@ -22,8 +22,6 @@ import com.zsdk.autotest.common.Common;
 import com.zsdk.autotest.common.ExcelUtils;
 import com.zsdk.autotest.common.HttpClientUtil;
 
-
-
 public class TestCase {
 
 	public Map<String, HashMap> allTestCases;
@@ -32,90 +30,137 @@ public class TestCase {
 
 	@BeforeClass
 	public void beforeClass() {
-//		try {
-//			allTestCases = ExcelUtils.toMapBySheet(testCasePath, "cases_a");
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		// try {
+		// allTestCases = ExcelUtils.toMapBySheet(testCasePath, "cases_a");
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
 	}
 
 	@AfterClass
 	public void afterClass() {
 	}
-	
+
 	@DataProvider(name = "case_a")
-	public Object[][] getCaseData(){
+	public Object[][] getCaseData() {
 		return ExcelUtils.getSheetData(testCasePath, "cases_a");
 	}
-	
-	/** 用例格式
-	 * CaseName	RequestMethod	RequestUrl	RequestData	ExpectResult	CaseDesc
-	 *   登录	GET	           test.zbg.com	{"name":"aaaa"}	TRUE	    desc1
+
+	/**
+	 * 用例格式 CaseName RequestMethod RequestUrl RequestData ExpectResult CaseDesc
+	 * 登录 GET test.zbg.com {"name":"aaaa"} TRUE desc1
+	 * 
 	 * @return
-	 * @throws IOException 
-	 * @throws ClientProtocolException 
-	 * @throws URISyntaxException 
+	 * @throws IOException
+	 * @throws ClientProtocolException
+	 * @throws URISyntaxException
 	 */
 	@Test(dataProvider = "case_a")
-	public void testZBGApi(HashMap<String, String> map) throws ClientProtocolException, IOException, URISyntaxException{
-		
-		//CaseName	RequestMethod	RequestUrl	RequestHead	RequestData	ExpectResult	CaseDesc
+	public void testZBGApi(HashMap<String, String> map)
+			throws ClientProtocolException, IOException, URISyntaxException {
+		// CaseName RequestMethod RequestUrl RequestHead RequestData
+		// ExpectResult CaseDesc
 		Reporter.log("【用例名称】：" + map.get("CaseName") + "===========================================");
 		Reporter.log("【用例参数】：" + map.get("CaseName") + "===========================================");
 		for (Entry<String, String> entry : map.entrySet()) {
-			if (entry.getKey()==null || entry.getKey().isEmpty()) {
+			if (entry.getKey() == null || entry.getKey().isEmpty()) {
 				continue;
 			}
 			Reporter.log(entry.getKey() + ":" + entry.getValue());
 		}
-//		Reporter.log("【用例名称】：" + map.get("CaseName") + "===========================================");
-		
+		// Reporter.log("【用例名称】：" + map.get("CaseName") +
+		// "===========================================");
+
 		String url = map.get("RequestUrl");
 		url = Common.checkAndChangeUrl(url);
 		String method = map.get("RequestMethod");
 		String header = map.get("RequestHead");
 		String requestData = map.get("RequestData");
-		
+
+		String resultComparisonType = map.get("ResultComparisonType");
 		String expect = map.get("ExpectResult");
-		
+
 		Map<String, String> headMap = new HashMap<>();
 		String respStr = "";
-		if ( "POST".equals(method) ) {
-			if ( header == null || header.isEmpty()) {
+		if ("POST".equals(method)) {
+			if (header == null || header.isEmpty()) {
 				respStr = HttpClientUtil.doPostRequst(url, requestData);
-			}else {
+			} else {
 				headMap = Common.stringToMap(header, ":", "|");
 				respStr = HttpClientUtil.doPostRequst(url, requestData, headMap);
 			}
-		}else if ("GET".equals(method) ) {
-			if ( header == null || header.isEmpty()) {
+		} else if ("GET".equals(method)) {
+			if (header == null || header.isEmpty()) {
 				respStr = HttpClientUtil.doGetRequest(url);
-			}else {
+			} else {
 				headMap = Common.stringToMap(header, ":", "|");
 				respStr = HttpClientUtil.doGetRequest(url, headMap);
 			}
-		} 
+		}
 		Reporter.log("【响应结果】：" + map.get("CaseName") + "===========================================");
 		Reporter.log(respStr);
 
+		Reporter.log("【结果校验】：校验类型ResultComparisonType:" + resultComparisonType);
 		Reporter.log("【结果校验】：expect:" + expect);
-		if (respStr.indexOf(expect) < 0) {
-			assertTrue(false);
-			Reporter.log("【结果校验】：fail");
-		}else {
-			assertTrue(true);
-			Reporter.log("【结果校验】：pass");
-		}
+
+		compareResult(resultComparisonType, expect, respStr);
 	}
 
 	
-//	@Test
-	public void f2() {
-		Reporter.log("testNG testcase f2()");
-		assertTrue(true);
+	/**
+	 * 响应结果与预期对比
+	 * @param resultComparisonType  对比类型 ：contain,equal,>,<
+	 * @param expect 期望值
+	 * @param respStr 响应结果
+	 */
+	public void compareResult(String resultComparisonType, String expect, String respStr) {
+		switch (resultComparisonType) {
+		case "contain":
+			if (respStr.indexOf(expect) < 0) {
+				assertTrue(false);
+				Reporter.log("【结果校验】：fail");
+			} else {
+				assertTrue(true);
+				Reporter.log("【结果校验】：pass");
+			}
+			break;
+
+		case "equal":
+			if (expect.equals(respStr)) {
+				assertTrue(true);
+				Reporter.log("【结果校验】：pass");
+			}else {
+				assertTrue(false);
+				Reporter.log("【结果校验】：fail");
+			}
+			break;
+
+		case ">":
+			if (respStr.compareTo(expect) > 0) {
+				assertTrue(true);
+				Reporter.log("【结果校验】：pass");
+			}else {
+				assertTrue(true);
+				Reporter.log("【结果校验】：pass");
+			}
+			break;
+
+		case "<":
+			if (respStr.compareTo(expect) < 0) {
+				assertTrue(true);
+				Reporter.log("【结果校验】：pass");
+			}else {
+				assertTrue(true);
+				Reporter.log("【结果校验】：pass");
+			}
+			break;
+
+		default:
+			break;
+		}
 	}
 
-//	@Test
+	// @Test
 	public void f3() {
 		Reporter.log("testNG testcase f3()");
 		assertTrue(true);
