@@ -7,9 +7,13 @@
 	<name>auto_test</name>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<xmlFileName>testng.xml</xmlFileName>
+        <!-- 文件拷贝时的编码 -->  
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>  
+        <!-- 编译时的编码 -->  
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>  
 	</properties>
+
 
 	<dependencies>
 		<!-- 日志 -->
@@ -61,6 +65,13 @@
 			<version>2.4</version>
 			<classifier>jdk15</classifier>
 		</dependency>
+		
+		<!-- extent report -->
+		<dependency>
+			<groupId>com.aventstack</groupId>
+			<artifactId>extentreports</artifactId>
+			<version>3.0.3</version>
+		</dependency>
 	</dependencies>
 
 
@@ -68,66 +79,50 @@
 	<!-- build构建 -->
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 				<artifactId>maven-compiler-plugin</artifactId> -->
+<!-- 				<version>3.3</version> -->
+<!-- 				<configuration> -->
+<!-- 					<source>1.8</source> -->
+<!-- 					<target>1.8</target> -->
+<!-- 				</configuration> -->
+<!-- 			</plugin> -->
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.18.1</version>
-				<configuration>
-					<suiteXmlFiles>
-						<suiteXmlFile>
-							testng.xml
-						</suiteXmlFile>
-					</suiteXmlFiles>
-
-					<!-- <properties> -->
-					<!-- <property> -->
-					<!-- <name>usedefaultlisteners</name> -->
-					<!-- <value>false</value> -->
-					<!-- </property> -->
-					<!-- <property> -->
-					<!-- <name>listener</name> -->
-					<!-- <value>org.uncommons.reportng.HTMLReporter, -->
-					<!-- org.uncommons.reportng.JUnitXMLReporter</value> -->
-					<!-- </property> -->
-					<!-- </properties> -->
-					<!-- <workingDirectory>target/</workingDirectory> -->
-					<!-- <forkMode>always</forkMode> -->
-					<!-- 解决报告中中文乱码 -->
-					<!-- <argLine>-Dfile.encoding=UTF-8</argLine> -->
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.18.1</version>
-				<configuration>
-					<properties>
-						<property>
-							<name>usedefaultlisteners</name>
-							<value>false</value>
-						</property>
-						<property>
-							<name>listener</name>
-							<value>org.uncommons.reportng.HTMLReporter,
-								org.uncommons.reportng.JUnitXMLReporter</value>
-						</property>
-					</properties>
-					<workingDirectory>target/</workingDirectory>
-					<forkMode>always</forkMode>
-					<!-- 解决报告中中文乱码 -->
-					<argLine>-Dfile.encoding=UTF-8</argLine>
-				</configuration>
-			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 				<artifactId>maven-surefire-plugin</artifactId> -->
+<!-- 				<version>2.18.1</version> -->
+<!-- 				<configuration> -->
+<!-- 					<suiteXmlFiles> -->
+<!-- 						<suiteXmlFile> -->
+<!-- 							testng.xml -->
+<!-- 						</suiteXmlFile> -->
+<!-- 					</suiteXmlFiles> -->
+<!-- 				</configuration> -->
+<!-- 			</plugin> -->
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 				<artifactId>maven-surefire-plugin</artifactId> -->
+<!-- 				<version>2.18.1</version> -->
+<!-- 				<configuration> -->
+<!-- 					<properties> -->
+<!-- 						<property> -->
+<!-- 							<name>usedefaultlisteners</name> -->
+<!-- 							<value>false</value> -->
+<!-- 						</property> -->
+<!-- 						<property> -->
+<!-- 							<name>listener</name> -->
+<!-- 								<value>com.zsdk.autotest.common.ExtentIReporterListener</value> -->
+<!--  							<value>org.uncommons.reportng.HTMLReporter, org.uncommons.reportng.JUnitXMLReporter</value> -->
+<!-- 						</property> -->
+<!-- 					</properties> -->
+<!-- 					<workingDirectory>target/</workingDirectory> -->
+<!-- 					<forkMode>always</forkMode> -->
+<!-- 					解决报告中中文乱码 -->
+<!-- 					<argLine>-Dfile.encoding=UTF-8</argLine> -->
+<!-- 				</configuration> -->
+<!-- 			</plugin> -->
 
 			<!-- maven 打依赖jar包 -->
 			<plugin>

@@ -26,7 +26,8 @@ public class TestCase {
 
 	public Map<String, HashMap> allTestCases;
 	// 测试案例文件路径--excel作为存储
-	public String testCasePath = "E:/workspace/auto_test/testcases.xls";
+//	public String testCasePath = "E:/workspace/auto_test/testcases.xls";
+	public String testCasePath = "testcases.xls";
 
 	@BeforeClass
 	public void beforeClass() {
@@ -61,15 +62,13 @@ public class TestCase {
 		// CaseName RequestMethod RequestUrl RequestHead RequestData
 		// ExpectResult CaseDesc
 		Reporter.log("【用例名称】：" + map.get("CaseName") + "===========================================");
-		Reporter.log("【用例参数】：" + map.get("CaseName") + "===========================================");
+		Reporter.log("【用例参数】：");
 		for (Entry<String, String> entry : map.entrySet()) {
 			if (entry.getKey() == null || entry.getKey().isEmpty()) {
 				continue;
 			}
 			Reporter.log(entry.getKey() + ":" + entry.getValue());
 		}
-		// Reporter.log("【用例名称】：" + map.get("CaseName") +
-		// "===========================================");
 
 		String url = map.get("RequestUrl");
 		url = Common.checkAndChangeUrl(url);
@@ -86,14 +85,14 @@ public class TestCase {
 			if (header == null || header.isEmpty()) {
 				respStr = HttpClientUtil.doPostRequst(url, requestData);
 			} else {
-				headMap = Common.stringToMap(header, ":", "|");
+				headMap = Common.stringToMap(header, ":", '|');
 				respStr = HttpClientUtil.doPostRequst(url, requestData, headMap);
 			}
 		} else if ("GET".equals(method)) {
 			if (header == null || header.isEmpty()) {
 				respStr = HttpClientUtil.doGetRequest(url);
 			} else {
-				headMap = Common.stringToMap(header, ":", "|");
+				headMap = Common.stringToMap(header, ":", '|');
 				respStr = HttpClientUtil.doGetRequest(url, headMap);
 			}
 		}
